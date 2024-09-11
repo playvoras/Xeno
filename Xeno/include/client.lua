@@ -158,15 +158,14 @@ local function raw_encode(input: buffer): buffer
 	return output
 end
 
-local function raw_decode(input: buffer): buffer
+local function raw_decode(input: buffer): buffer -- is this how to implement it
 	local inputLength = buffer.len(input)
 	local inputChunks = math.ceil(inputLength / 4)
 
-	-- TODO: Support input without padding
 	local inputPadding = 0
-	if inputLength ~= 0 then
-		if buffer.readu8(input, inputLength - 1) == padding then inputPadding += 1 end
-		if buffer.readu8(input, inputLength - 2) == padding then inputPadding += 1 end
+	local remainder = inputLength % 4
+	if remainder > 0 then
+		inputPadding = 4 - remainder
 	end
 
 	local outputLength = inputChunks * 3 - inputPadding
@@ -203,8 +202,8 @@ local function raw_decode(input: buffer): buffer
 
 		local lastValue1 = buffer.readu8(lookupCharacterToValue, buffer.readu8(input, lastInputIndex))
 		local lastValue2 = buffer.readu8(lookupCharacterToValue, buffer.readu8(input, lastInputIndex + 1))
-		local lastValue3 = buffer.readu8(lookupCharacterToValue, buffer.readu8(input, lastInputIndex + 2))
-		local lastValue4 = buffer.readu8(lookupCharacterToValue, buffer.readu8(input, lastInputIndex + 3))
+		local lastValue3 = inputPadding < 2 and buffer.readu8(lookupCharacterToValue, buffer.readu8(input, lastInputIndex + 2)) or 0
+		local lastValue4 = inputPadding < 1 and buffer.readu8(lookupCharacterToValue, buffer.readu8(input, lastInputIndex + 3)) or 0
 
 		local lastChunk = bit32.bor(
 			bit32.lshift(lastValue1, 18),
@@ -213,18 +212,16 @@ local function raw_decode(input: buffer): buffer
 			lastValue4
 		)
 
-		if inputPadding <= 2 then
-			local lastCharacter1 = bit32.rshift(lastChunk, 16)
-			buffer.writeu8(output, lastOutputIndex, lastCharacter1)
+		local lastCharacter1 = bit32.rshift(lastChunk, 16)
+		buffer.writeu8(output, lastOutputIndex, lastCharacter1)
 
-			if inputPadding <= 1 then
-				local lastCharacter2 = bit32.band(bit32.rshift(lastChunk, 8), 0b11111111)
-				buffer.writeu8(output, lastOutputIndex + 1, lastCharacter2)
+		if inputPadding <= 1 then
+			local lastCharacter2 = bit32.band(bit32.rshift(lastChunk, 8), 0b11111111)
+			buffer.writeu8(output, lastOutputIndex + 1, lastCharacter2)
 
-				if inputPadding == 0 then
-					local lastCharacter3 = bit32.band(lastChunk, 0b11111111)
-					buffer.writeu8(output, lastOutputIndex + 2, lastCharacter3)
-				end
+			if inputPadding == 0 then
+				local lastCharacter3 = bit32.band(lastChunk, 0b11111111)
+				buffer.writeu8(output, lastOutputIndex + 2, lastCharacter3)
 			end
 		end
 	end
