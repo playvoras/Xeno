@@ -1950,137 +1950,137 @@ function Xeno.debug.getinfo(f, options)
 	return result
 end
 
-function Xeno.debug.getmetatable(table_or_userdata)
-	local result = getmetatable(table_or_userdata)
+function Xeno.debug.getmetatable(table_or_userdata) --yapping call so it bypass
+    local result = getmetatable(table_or_userdata)
 
-	if result == nil then
-		return
-	end
+    if result == nil then
+        return
+    end
 
-	if type(result) == "table" and pcall(setmetatable, table_or_userdata, result) then
-		return result
-	end
+    if type(result) == "table" and ypcall(setmetatable, table_or_userdata, result) then
+        return result
+    end
 
-	local real_metamethods = {}
+    local real_metamethods = {}
 
-	xpcall(function()
-		return table_or_userdata._
-	end, function()
-		real_metamethods.__index = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata._
+    end, function()
+        real_metamethods.__index = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		table_or_userdata._ = table_or_userdata
-	end, function()
-		real_metamethods.__newindex = debug.info(2, "f")
-	end)
+    ypcall(function()
+        table_or_userdata._ = table_or_userdata
+    end, function()
+        real_metamethods.__newindex = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata:___()
-	end, function()
-		real_metamethods.__namecall = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata:___()
+    end, function()
+        real_metamethods.__namecall = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		table_or_userdata()
-	end, function()
-		real_metamethods.__call = debug.info(2, "f")
-	end)
+    ypcall(function()
+        table_or_userdata()
+    end, function()
+        real_metamethods.__call = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		for _ in table_or_userdata do
-		end
-	end, function()
-		real_metamethods.__iter = debug.info(2, "f")
-	end)
+    ypcall(function()
+        for _ in table_or_userdata do
+        end
+    end, function()
+        real_metamethods.__iter = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return #table_or_userdata
-	end, function()
-		real_metamethods.__len = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return #table_or_userdata
+    end, function()
+        real_metamethods.__len = debug.info(2, "f")
+    end)
 
-	local type_check_semibypass = {}
+    local type_check_semibypass = {}
 
-	xpcall(function()
-		return table_or_userdata == table_or_userdata
-	end, function()
-		real_metamethods.__eq = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata == table_or_userdata
+    end, function()
+        real_metamethods.__eq = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata + type_check_semibypass
-	end, function()
-		real_metamethods.__add = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata + type_check_semibypass
+    end, function()
+        real_metamethods.__add = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata - type_check_semibypass
-	end, function()
-		real_metamethods.__sub = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata - type_check_semibypass
+    end, function()
+        real_metamethods.__sub = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata * type_check_semibypass
-	end, function()
-		real_metamethods.__mul = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata * type_check_semibypass
+    end, function()
+        real_metamethods.__mul = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata / type_check_semibypass
-	end, function()
-		real_metamethods.__div = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata / type_check_semibypass
+    end, function()
+        real_metamethods.__div = debug.info(2, "f")
+    end)
 
-	xpcall(function() -- * LUAU
-		return table_or_userdata // type_check_semibypass
-	end, function()
-		real_metamethods.__idiv = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata // type_check_semibypass
+    end, function()
+        real_metamethods.__idiv = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata % type_check_semibypass
-	end, function()
-		real_metamethods.__mod = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata % type_check_semibypass
+    end, function()
+        real_metamethods.__mod = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata ^ type_check_semibypass
-	end, function()
-		real_metamethods.__pow = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata ^ type_check_semibypass
+    end, function()
+        real_metamethods.__pow = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return -table_or_userdata
-	end, function()
-		real_metamethods.__unm = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return -table_or_userdata
+    end, function()
+        real_metamethods.__unm = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata < type_check_semibypass
-	end, function()
-		real_metamethods.__lt = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata < type_check_semibypass
+    end, function()
+        real_metamethods.__lt = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata <= type_check_semibypass
-	end, function()
-		real_metamethods.__le = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata <= type_check_semibypass
+    end, function()
+        real_metamethods.__le = debug.info(2, "f")
+    end)
 
-	xpcall(function()
-		return table_or_userdata .. type_check_semibypass
-	end, function()
-		real_metamethods.__concat = debug.info(2, "f")
-	end)
+    ypcall(function()
+        return table_or_userdata .. type_check_semibypass
+    end, function()
+        real_metamethods.__concat = debug.info(2, "f")
+    end)
 
-	real_metamethods.__type = typeof(table_or_userdata)
+    real_metamethods.__type = typeof(table_or_userdata)
 
-	real_metamethods.__metatable = getmetatable(game)
-	real_metamethods.__tostring = function()
-		return tostring(table_or_userdata)
-	end
-	return real_metamethods
+    real_metamethods.__metatable = getmetatable(game)
+    real_metamethods.__tostring = function()
+        return tostring(table_or_userdata)
+    end
+    return real_metamethods
 end
 
 Xeno.debug.setmetatable = setmetatable
